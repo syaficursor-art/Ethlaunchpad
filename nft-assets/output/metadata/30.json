@@ -1,0 +1,35 @@
+{
+  "name": "Chill Guins #30",
+  "description": "Chill Guins collection",
+  "image": "ipfs://bafybeicciwjszlpoydoy45jzxdpetvruro3ts7hk5x6ave45qmiuizlmh4/30.png",
+  "attributes": [
+    {
+      "trait_type": "Background",
+      "value": "Blue"
+    },
+    {
+      "trait_type": "Body",
+      "value": "Purple"
+    },
+    {
+      "trait_type": "Clothes",
+      "value": "Warm Sweater"
+    },
+    {
+      "trait_type": "Eyes",
+      "value": "Open"
+    },
+    {
+      "trait_type": "Mouth",
+      "value": "Sad"
+    },
+    {
+      "trait_type": "Head",
+      "value": "Towel"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Common"
+    }
+  ]
+}

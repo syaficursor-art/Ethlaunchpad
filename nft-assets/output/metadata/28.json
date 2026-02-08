@@ -1,0 +1,35 @@
+{
+  "name": "Chill Guins #28",
+  "description": "Chill Guins collection",
+  "image": "ipfs://bafybeicciwjszlpoydoy45jzxdpetvruro3ts7hk5x6ave45qmiuizlmh4/28.png",
+  "attributes": [
+    {
+      "trait_type": "Background",
+      "value": "White"
+    },
+    {
+      "trait_type": "Body",
+      "value": "Blue"
+    },
+    {
+      "trait_type": "Clothes",
+      "value": "Ocean Sweater"
+    },
+    {
+      "trait_type": "Eyes",
+      "value": "Open"
+    },
+    {
+      "trait_type": "Mouth",
+      "value": "Smirk"
+    },
+    {
+      "trait_type": "Head",
+      "value": "Aviary Goggles"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Common"
+    }
+  ]
+}

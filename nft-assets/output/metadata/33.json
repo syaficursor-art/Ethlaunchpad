@@ -1,0 +1,35 @@
+{
+  "name": "Chill Guins #33",
+  "description": "Chill Guins collection",
+  "image": "ipfs://bafybeicciwjszlpoydoy45jzxdpetvruro3ts7hk5x6ave45qmiuizlmh4/33.png",
+  "attributes": [
+    {
+      "trait_type": "Background",
+      "value": "Yellow"
+    },
+    {
+      "trait_type": "Body",
+      "value": "Grey"
+    },
+    {
+      "trait_type": "Clothes",
+      "value": "Office Boy"
+    },
+    {
+      "trait_type": "Eyes",
+      "value": "Scar"
+    },
+    {
+      "trait_type": "Mouth",
+      "value": "Sad"
+    },
+    {
+      "trait_type": "Head",
+      "value": "Adventurers Headband"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Common"
+    }
+  ]
+}

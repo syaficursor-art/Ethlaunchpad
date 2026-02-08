@@ -1,0 +1,35 @@
+{
+  "name": "Chill Guins #50",
+  "description": "Chill Guins collection",
+  "image": "ipfs://bafybeicciwjszlpoydoy45jzxdpetvruro3ts7hk5x6ave45qmiuizlmh4/50.png",
+  "attributes": [
+    {
+      "trait_type": "Background",
+      "value": "Violet"
+    },
+    {
+      "trait_type": "Body",
+      "value": "Blue"
+    },
+    {
+      "trait_type": "Clothes",
+      "value": "Grey Stripe Hoodie"
+    },
+    {
+      "trait_type": "Eyes",
+      "value": "Scar"
+    },
+    {
+      "trait_type": "Mouth",
+      "value": "Neutral"
+    },
+    {
+      "trait_type": "Head",
+      "value": "Stripes Towel"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Epic"
+    }
+  ]
+}

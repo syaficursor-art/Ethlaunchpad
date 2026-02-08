@@ -1,0 +1,29 @@
+{
+  "name": "mintnft-contracts",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:mainnet": "hardhat run scripts/deploy.ts --network mainnet",
+    "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia",
+    "deploy:goerli": "hardhat run scripts/deploy.ts --network goerli",
+    "verify:mainnet": "hardhat run scripts/verify.ts --network mainnet",
+    "verify:sepolia": "hardhat run scripts/verify.ts --network sepolia",
+    "verify:goerli": "hardhat run scripts/verify.ts --network goerli"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@openzeppelin/contracts": "^4.9.6",
+    "dotenv": "^16.4.5",
+    "erc721a": "^4.2.3",
+    "hardhat": "^2.22.4",
+    "keccak256": "^1.0.6",
+    "merkletreejs": "^0.3.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "overrides": {
+    "@nomicfoundation/hardhat-verify": "^2.0.0"
+  }
+}

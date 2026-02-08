@@ -1,0 +1,12 @@
+{
+  "collectionName": "Chill Guins",
+  "description": "Chill Guins collection",
+  "supply": 111,
+  "imageBaseUri": "ipfs://bafybeicciwjszlpoydoy45jzxdpetvruro3ts7hk5x6ave45qmiuizlmh4/",
+  "layersOrder": ["Background", "Body", "Clothes", "Eyes", "Mouth", "Head"],
+  "rarityDistribution": {
+    "Legendary": 5,
+    "Epic": 17,
+    "Common": 89
+  }
+}

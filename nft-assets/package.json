@@ -1,0 +1,12 @@
+{
+  "name": "nft-assets-generator",
+  "private": true,
+  "version": "1.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "generate": "node scripts/generate.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.5"
+  }
+}
