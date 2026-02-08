@@ -170,4 +170,23 @@ describe("MintNFT", function () {
     const { contract } = await deployFixture();
     await expect(contract.withdraw()).to.be.revertedWith("No ETH to withdraw");
   });
+
+  it("charges launchpad fee and pays recipient", async () => {
+    const { contract, owner, user, other } = await deployFixture();
+    await contract.setFeeRecipient(other.address);
+    await contract.setLaunchpadFee(ethers.parseEther("0.005"));
+
+    const ownerBefore = await ethers.provider.getBalance(owner.address);
+    const recipientBefore = await ethers.provider.getBalance(other.address);
+
+    await contract
+      .connect(user)
+      .publicMint(1, [], { value: ethers.parseEther("0.015") });
+
+    const ownerAfter = await ethers.provider.getBalance(owner.address);
+    const recipientAfter = await ethers.provider.getBalance(other.address);
+
+    expect(ownerAfter - ownerBefore).to.equal(ethers.parseEther("0.01"));
+    expect(recipientAfter - recipientBefore).to.equal(ethers.parseEther("0.005"));
+  });
 });

@@ -14,6 +14,8 @@ contract MintNFT is ERC721A, Ownable, Pausable, ReentrancyGuard {
     uint256 public immutable maxSupply;
     uint256 public mintPrice;
     uint256 public maxMintPerWallet;
+    uint256 public launchpadFee;
+    address public feeRecipient;
 
     string public baseURI;
     string public notRevealedURI;
@@ -44,6 +46,8 @@ contract MintNFT is ERC721A, Ownable, Pausable, ReentrancyGuard {
     event PhaseAllowlistEnabled(uint256 indexed phaseId, bool enabled);
     event PhaseAllowlistUpdated(uint256 indexed phaseId, uint256 count, bool allowed);
     event PhaseMerkleRootSet(uint256 indexed phaseId, bytes32 root);
+    event LaunchpadFeeUpdated(uint256 fee);
+    event FeeRecipientUpdated(address recipient);
 
     constructor(
         string memory name_,
@@ -68,6 +72,7 @@ contract MintNFT is ERC721A, Ownable, Pausable, ReentrancyGuard {
 
         revealed = false;
         transfersLocked = true;
+        feeRecipient = msg.sender;
     }
 
     function _startTokenId() internal pure override returns (uint256) {
@@ -88,7 +93,8 @@ contract MintNFT is ERC721A, Ownable, Pausable, ReentrancyGuard {
             "Max mint per wallet exceeded"
         );
         uint256 totalPrice = uint256(phase.price) * quantity;
-        require(msg.value == totalPrice, "Incorrect ETH amount");
+        uint256 totalFee = launchpadFee * quantity;
+        require(msg.value == totalPrice + totalFee, "Incorrect ETH amount");
 
         mintedPerPhase[phaseId][msg.sender] += quantity;
 
@@ -96,6 +102,11 @@ contract MintNFT is ERC721A, Ownable, Pausable, ReentrancyGuard {
 
         if (totalPrice > 0) {
             payable(owner()).sendValue(totalPrice);
+        }
+        if (totalFee > 0) {
+            address recipient = feeRecipient;
+            require(recipient != address(0), "Fee recipient not set");
+            payable(recipient).sendValue(totalFee);
         }
     }
 
@@ -126,6 +137,17 @@ contract MintNFT is ERC721A, Ownable, Pausable, ReentrancyGuard {
     function setTransfersLocked(bool locked) external onlyOwner {
         transfersLocked = locked;
         emit TransfersLocked(locked);
+    }
+
+    function setLaunchpadFee(uint256 feeWei) external onlyOwner {
+        launchpadFee = feeWei;
+        emit LaunchpadFeeUpdated(feeWei);
+    }
+
+    function setFeeRecipient(address recipient) external onlyOwner {
+        require(recipient != address(0), "Zero recipient");
+        feeRecipient = recipient;
+        emit FeeRecipientUpdated(recipient);
     }
 
     function approve(address to, uint256 tokenId) public payable override {

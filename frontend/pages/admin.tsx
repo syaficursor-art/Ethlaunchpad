@@ -34,6 +34,10 @@ export default function Admin() {
   const [baseURI, setBaseURI] = useState<string>("");
   const [mintPrice, setMintPrice] = useState("0");
   const [maxMintPerWallet, setMaxMintPerWallet] = useState("0");
+  const [launchpadFee, setLaunchpadFee] = useState("0");
+  const [feeRecipient, setFeeRecipient] = useState<string>("");
+  const [feeRecipientInput, setFeeRecipientInput] = useState("");
+  const [launchpadFeeInput, setLaunchpadFeeInput] = useState("");
   const [paused, setPaused] = useState(false);
   const [transfersLocked, setTransfersLocked] = useState(false);
   const [revealed, setRevealed] = useState(false);
@@ -72,16 +76,27 @@ export default function Admin() {
   const refresh = async () => {
     try {
       const contract = await getAdminReadContract();
-      const [ownerAddress, isPaused, locked, isRevealed, currentBaseURI, price, maxPerWallet] =
-        await Promise.all([
-          contract.owner(),
-          contract.paused(),
-          contract.transfersLocked(),
-          contract.revealed(),
-          contract.baseURI(),
-          contract.mintPrice(),
-          contract.maxMintPerWallet(),
-        ]);
+      const [
+        ownerAddress,
+        isPaused,
+        locked,
+        isRevealed,
+        currentBaseURI,
+        price,
+        maxPerWallet,
+        fee,
+        recipient,
+      ] = await Promise.all([
+        contract.owner(),
+        contract.paused(),
+        contract.transfersLocked(),
+        contract.revealed(),
+        contract.baseURI(),
+        contract.mintPrice(),
+        contract.maxMintPerWallet(),
+        contract.launchpadFee(),
+        contract.feeRecipient(),
+      ]);
       setOwner(ownerAddress);
       setPaused(isPaused);
       setTransfersLocked(locked);
@@ -89,6 +104,10 @@ export default function Admin() {
       setBaseURI(currentBaseURI || "");
       setMintPrice(ethers.utils.formatEther(price));
       setMaxMintPerWallet(maxPerWallet.toString());
+      setLaunchpadFee(ethers.utils.formatEther(fee));
+      setFeeRecipient(recipient || "");
+      setLaunchpadFeeInput(ethers.utils.formatEther(fee));
+      setFeeRecipientInput(recipient || "");
       if (status.type === "error") {
         setStatus({ type: "idle", message: "" });
       }
@@ -252,6 +271,43 @@ export default function Admin() {
       const contract = await getWriteContract(connector);
       const tx = await contract.setRevealed(!revealed);
       await tx.wait();
+    });
+  };
+
+  const handleUpdateLaunchpadFee = async () => {
+    if (!ensureReady()) return;
+    if (!feeRecipientInput || !ethers.utils.isAddress(feeRecipientInput)) {
+      setStatus({ type: "error", message: "Enter a valid fee recipient address" });
+      return;
+    }
+    let feeWei;
+    try {
+      feeWei = ethers.utils.parseEther(launchpadFeeInput || "0");
+    } catch {
+      setStatus({ type: "error", message: "Invalid fee amount" });
+      return;
+    }
+
+    const currentFeeWei = ethers.utils.parseEther(launchpadFee || "0");
+    const recipientChanged =
+      feeRecipientInput && !isSameAddress(feeRecipientInput, feeRecipient);
+    const feeChanged = !currentFeeWei.eq(feeWei);
+
+    if (!recipientChanged && !feeChanged) {
+      setStatus({ type: "success", message: "Launchpad fee already up to date" });
+      return;
+    }
+
+    await withTx(async () => {
+      const contract = await getWriteContract(connector);
+      if (recipientChanged) {
+        const tx = await contract.setFeeRecipient(feeRecipientInput);
+        await tx.wait();
+      }
+      if (feeChanged) {
+        const tx = await contract.setLaunchpadFee(feeWei);
+        await tx.wait();
+      }
     });
   };
 
@@ -533,6 +589,48 @@ export default function Admin() {
                   >
                     Set Base URI
                   </button>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Launchpad Fee</p>
+                    <h3 className="text-lg font-semibold">Fee Settings</h3>
+                  </div>
+                </div>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <label className="phase-field">
+                    <span className="phase-label">Fee amount ({NATIVE_SYMBOL})</span>
+                    <input
+                      className="phase-input"
+                      type="number"
+                      step="0.0001"
+                      value={launchpadFeeInput}
+                      onChange={(e) => setLaunchpadFeeInput(e.target.value)}
+                    />
+                  </label>
+                  <label className="phase-field">
+                    <span className="phase-label">Fee recipient</span>
+                    <input
+                      className="phase-input"
+                      value={feeRecipientInput}
+                      onChange={(e) => setFeeRecipientInput(e.target.value)}
+                      placeholder="0x..."
+                    />
+                  </label>
+                </div>
+                <div className="phase-actions-row">
+                  <button
+                    className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900"
+                    onClick={handleUpdateLaunchpadFee}
+                  >
+                    Update Fee
+                  </button>
+                  <div className="phase-helper">
+                    <span>Fee is added on top of mint price for every NFT.</span>
+                    <span>Set to 0 to disable the launchpad fee.</span>
+                  </div>
                 </div>
               </div>
 

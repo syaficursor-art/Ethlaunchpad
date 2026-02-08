@@ -31,6 +31,7 @@ export default function Home() {
   const [totalSupply, setTotalSupply] = useState("0");
   const [maxSupply, setMaxSupply] = useState("0");
   const [maxMintPerWallet, setMaxMintPerWallet] = useState("0");
+  const [launchpadFee, setLaunchpadFee] = useState("0");
   const [paused, setPaused] = useState(false);
   const [transfersLocked, setTransfersLocked] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -62,7 +63,7 @@ export default function Home() {
   const refresh = async () => {
     try {
       const contract = getReadContract();
-      const [price, total, max, maxPerWallet, isPaused, locked] =
+      const [price, total, max, maxPerWallet, isPaused, locked, fee] =
         await Promise.all([
           contract.mintPrice(),
           contract.totalSupply(),
@@ -70,6 +71,7 @@ export default function Home() {
           contract.maxMintPerWallet(),
           contract.paused(),
           contract.transfersLocked(),
+          contract.launchpadFee(),
         ]);
 
       setMintPrice(ethers.utils.formatEther(price));
@@ -78,6 +80,7 @@ export default function Home() {
       setMaxMintPerWallet(maxPerWallet.toString());
       setPaused(isPaused);
       setTransfersLocked(locked);
+      setLaunchpadFee(ethers.utils.formatEther(fee));
     } catch (error: any) {
       setStatus({ type: "error", message: error?.message || "Failed to load" });
     }
@@ -250,6 +253,7 @@ export default function Home() {
       setStatus({ type: "pending", message: "Waiting for wallet confirmation" });
       const contract = await getWriteContract(connector);
       const [active, phaseId, , price] = await contract.getActivePhase();
+      const fee = await contract.launchpadFee();
       if (!active) {
         setStatus({ type: "error", message: "No active phase available" });
         return;
@@ -270,7 +274,7 @@ export default function Home() {
           }
         }
       }
-      const totalValue = price.mul(quantity);
+      const totalValue = price.mul(quantity).add(fee.mul(quantity));
       const tx = await contract.publicMint(quantity, proof, { value: totalValue });
       setStatus({ type: "pending", message: "Transaction submitted" });
       await tx.wait();
@@ -298,10 +302,15 @@ export default function Home() {
     return isConnected && isCorrectChain && phaseLive && !paused && allowlistOk;
   }, [isConnected, isCorrectChain, phaseLive, paused, allowlistOk]);
   const totalCost = useMemo(() => {
-    const price = Number(activePhase?.priceEth ?? mintPrice);
-    if (Number.isNaN(price)) return "0";
-    return (price * quantity).toFixed(4);
-  }, [activePhase?.priceEth, mintPrice, quantity]);
+    try {
+      const priceWei = ethers.utils.parseEther(activePhase?.priceEth ?? mintPrice ?? "0");
+      const feeWei = ethers.utils.parseEther(launchpadFee || "0");
+      const totalWei = priceWei.add(feeWei).mul(quantity);
+      return ethers.utils.formatEther(totalWei);
+    } catch {
+      return "0";
+    }
+  }, [activePhase?.priceEth, mintPrice, launchpadFee, quantity]);
   const timeZoneLabel = useMemo(() => {
     try {
       const parts = new Intl.DateTimeFormat(undefined, { timeZoneName: "short" }).formatToParts(
@@ -537,6 +546,10 @@ export default function Home() {
                 <div className="summary-item">
                   <span>Total cost</span>
                   <span className="text-white">{totalCost} {NATIVE_SYMBOL}</span>
+                </div>
+                <div className="summary-item">
+                  <span>Launchpad fee</span>
+                  <span className="text-white">{launchpadFee} {NATIVE_SYMBOL} / mint</span>
                 </div>
                 <div className="summary-item">
                   <span>Freeze collection</span>
