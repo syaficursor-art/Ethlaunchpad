@@ -349,21 +349,20 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-hero text-white">
       <div className="mx-auto max-w-6xl px-6 py-10">
-        <header className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.4em] text-slate-400">
-              Chill Guins Launchpad
-            </p>
-            <h1 className="text-3xl font-semibold sm:text-4xl">
-              Chill Guins NFT Mint
-            </h1>
-            <p className="max-w-xl text-sm text-slate-300">
-              Mint directly on Ethereum. Metadata is hosted on IPFS and the collection can be
-              frozen until you are ready for secondary trading.
-            </p>
+        <header className="launch-header">
+          <div className="launch-left">
+            <div className="brand-mark">
+              <img src="/icons/logo.png" alt="Chill Guins" className="brand-logo" />
+              <p className="brand-description">
+                Mint directly on Ethereum. Metadata is hosted on IPFS and the collection can be
+                frozen until you are ready for secondary trading.
+              </p>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <WalletMenu onStatus={setStatus} />
+          <div className="launch-right">
+            <div className="launch-cta">
+              <WalletMenu onStatus={setStatus} />
+            </div>
           </div>
         </header>
 
