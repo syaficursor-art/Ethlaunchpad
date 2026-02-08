@@ -128,6 +128,30 @@ contract MintNFT is ERC721A, Ownable, Pausable, ReentrancyGuard {
         emit TransfersLocked(locked);
     }
 
+    function approve(address to, uint256 tokenId) public payable override {
+        require(!transfersLocked, "Transfers locked");
+        super.approve(to, tokenId);
+    }
+
+    function setApprovalForAll(address operator, bool approved) public override {
+        require(!transfersLocked, "Transfers locked");
+        super.setApprovalForAll(operator, approved);
+    }
+
+    function isApprovedForAll(address owner, address operator) public view override returns (bool) {
+        if (transfersLocked) {
+            return false;
+        }
+        return super.isApprovedForAll(owner, operator);
+    }
+
+    function getApproved(uint256 tokenId) public view override returns (address) {
+        if (transfersLocked) {
+            return address(0);
+        }
+        return super.getApproved(tokenId);
+    }
+
     function phaseCount() external view returns (uint256) {
         return phases.length;
     }

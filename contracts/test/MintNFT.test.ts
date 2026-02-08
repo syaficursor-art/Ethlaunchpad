@@ -103,6 +103,41 @@ describe("MintNFT", function () {
     ).to.not.be.reverted;
   });
 
+  it("blocks approvals when frozen", async () => {
+    const { contract, user, other } = await deployFixture();
+    await contract.connect(user).publicMint(1, [], { value: ethers.parseEther("0.01") });
+    await expect(contract.connect(user).approve(other.address, 1)).to.be.revertedWith(
+      "Transfers locked"
+    );
+    await expect(
+      contract.connect(user).setApprovalForAll(other.address, true)
+    ).to.be.revertedWith("Transfers locked");
+    expect(await contract.isApprovedForAll(user.address, other.address)).to.equal(false);
+  });
+
+  it("allows approvals when unfrozen", async () => {
+    const { contract, user, other } = await deployFixture();
+    await contract.connect(user).publicMint(1, [], { value: ethers.parseEther("0.01") });
+    await contract.setTransfersLocked(false);
+    await expect(contract.connect(user).approve(other.address, 1)).to.not.be.reverted;
+    await expect(contract.connect(user).setApprovalForAll(other.address, true)).to.not.be
+      .reverted;
+    expect(await contract.isApprovedForAll(user.address, other.address)).to.equal(true);
+  });
+
+  it("hides prior approvals while frozen", async () => {
+    const { contract, user, other } = await deployFixture();
+    await contract.connect(user).publicMint(1, [], { value: ethers.parseEther("0.01") });
+    await contract.setTransfersLocked(false);
+    await contract.connect(user).approve(other.address, 1);
+    await contract.connect(user).setApprovalForAll(other.address, true);
+    expect(await contract.getApproved(1)).to.equal(other.address);
+    expect(await contract.isApprovedForAll(user.address, other.address)).to.equal(true);
+    await contract.setTransfersLocked(true);
+    expect(await contract.getApproved(1)).to.equal(ethers.ZeroAddress);
+    expect(await contract.isApprovedForAll(user.address, other.address)).to.equal(false);
+  });
+
   it("respects pause", async () => {
     const { contract, user } = await deployFixture();
     await contract.pause();
